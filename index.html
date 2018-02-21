@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>boubles</title>
+	<style>
+		#canvas{
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+		.container{
+			text-align: center;
+			margin-top: 20px;
+		}
+		button{
+			padding: 5px;
+		}
+		button:hover{
+			cursor: pointer;
+			background-color: grey;
+			color: white;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<button id="ten-btn">+ dozen bublbes</button>
+		<button id="add-btn">+ one bubble</button>
+		<button id="rm-btn">- one bubble</button>
+		<button id="move-btn">move bubbles</button>
+		<button id="snake-btn">snake on/off</button>
+	</div>
+	<canvas id="canvas" style="background-color:grey"></canvas>
+	<script>
+		var canvas = document.getElementById("canvas"),
+			ctx = canvas.getContext("2d"),
+			x,
+			y,
+			bubles = [],
+			snakeFlag = false,
+			moveFlag = false,
+			makeSnake,
+			addDozen = document.getElementById("ten-btn"),
+			addBtn = document.getElementById("add-btn"),
+			snakeBtn = document.getElementById("snake-btn"),
+			rmBtn = document.getElementById("rm-btn");
+
+		canvas.width = 500;
+		canvas.height = 500;
+
+		document.getElementById("move-btn").addEventListener("click", function(){
+				moveFlag = !moveFlag
+		})
+    	addDozen.addEventListener("click", function(){
+    		for(let i=0; i<12; i++){
+        		bubles.push(makeBuble());
+        	};
+    	});
+
+    	addBtn.addEventListener("click", function(){
+    		bubles.push(makeBuble());
+    	});
+
+		snakeBtn.addEventListener("click", function(){
+    		snakeFlag = !snakeFlag;
+    		if(snakeFlag){
+	    		makeSnake = setInterval(function(){removeBuble()}, 20);
+    		} else {
+    			clearInterval(makeSnake);
+    		}
+    	});
+
+    	rmBtn.addEventListener("click", function(){
+    		bubles.pop();
+    	});
+
+
+		window.onload = function(){
+			function draw(){
+				for(let i=0; i<bubles.length; i++){
+					bubles[i].draw();
+					if(moveFlag){
+						bubles[i].move();
+					};
+				};
+				requestAnimationFrame(draw);
+			}
+			setInterval(cleanCanvas, (1000/60));
+			requestAnimationFrame(draw);
+		}
+
+		function Buble(x, y, r, color){
+			this.x = x;
+			this.y = y;
+			this.r = r;
+			this.color = color;
+
+			this.draw = function(){
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
+				ctx.fillStyle = this.color;
+				ctx.fill();
+				ctx.stroke();
+			};
+			this.move = function(){
+				var random = getRandom(-1, 1);
+				this.x += random;
+				this.y += random
+			}
+		}
+
+    	canvas.onmousedown = function(e){
+    		var rect = canvas.getBoundingClientRect();
+    		let x = e.clientX - rect.left;
+    		let y = e.clientY - rect.top;
+    		let mouseBuble = new Buble(x, y, 25, "green");
+    		bubles.push(mouseBuble);
+    	}
+
+    	canvas.onmousemove = function(e){
+	    	if(snakeFlag){
+	    		var rect = canvas.getBoundingClientRect();
+	    		let x = e.clientX - rect.left;
+	    		let y = e.clientY - rect.top;
+	    		let mouseBuble = new Buble(x, y, 25, "green");
+	    		bubles.push(mouseBuble);
+	    	}
+    	}
+		
+		function getRandom(min, max) {
+			return Math.floor(Math.random() * (max+1 - min) + min);
+		}
+
+		function cleanCanvas(){
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+        function makeBuble(){
+        	var x = getRandom(0, canvas.width);
+    		var y = getRandom(0, canvas.height);
+    		var green = getRandom(0, 255);
+    		var color = "rgb(200," + green + ", 0)";
+    		var buble = new Buble(x, y, 25, color);
+    		return buble;
+        }
+
+		function removeBuble(){
+    		bubles.shift();
+		}
+	</script>
+</body>
+</html>
